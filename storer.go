@@ -37,7 +37,7 @@ func (s JSONStorer) LoadByCode(code string) (username string, ok bool) {
 		return username, false
 	}
 	username, ok = loadbycode(code, s.codepath())
-	if !ok{
+	if !ok {
 		removeCode(s.codepath(), username)
 		return "", false
 	}
