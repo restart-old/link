@@ -8,8 +8,8 @@ import (
 
 type Storer interface {
 	Store(username string, Code Code) error
-	LoadByCode(code string) error
-	LoadByUser(username string) error
+	LoadByCode(code string) (string, error)
+	LoadByUser(username string) (string, error)
 }
 
 type JSONStorer struct {
