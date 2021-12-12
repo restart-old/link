@@ -8,8 +8,8 @@ import (
 
 type Storer interface {
 	Store(username string, Code Code) error
-	LoadByCode(code string) (string, error)
-	LoadByUser(username string) (string, error)
+	LoadByCode(code string) (string, bool)
+	LoadByUser(username string) (Code, bool)
 }
 
 type JSONStorer struct {
@@ -52,9 +52,9 @@ func (s JSONStorer) LoadByUser(username string) (code Code, ok bool) {
 	code, ok = loadbyuser(username, s.codepath())
 	if !ok {
 		removeCode(s.codepath(), username)
-		return Code{}, false
+		return code, false
 	}
-	return
+	return code, true
 }
 
 // codepath returns the path of the codes.json file
