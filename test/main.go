@@ -6,7 +6,6 @@ import (
 
 	"github.com/SGPractice/link"
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
