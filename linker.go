@@ -6,11 +6,18 @@ import (
 	"time"
 )
 
+type MySQLResponse struct {
+	username    string
+	discordID   string
+	linkedSince time.Time
+}
+
+func (m *MySQLResponse) Username() string       { return m.username }
+func (m *MySQLResponse) DiscordID() string      { return m.discordID }
+func (m *MySQLResponse) LinkedSince() time.Time { return m.linkedSince }
+
 type Linker struct {
-	db    *sql.DB
-	users map[string]struct {
-		LinkedAt time.Time
-	}
+	db *sql.DB
 	Storer
 }
 
@@ -25,29 +32,33 @@ func (l *Linker) Cache() {
 
 }
 
-func (l *Linker) LinkedFromDiscordID(discordID string) bool {
-	var v interface{}
+func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool) {
+	var v string
+	r := &MySQLResponse{}
 	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE discord_id='%s';", discordID))
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&v, &v)
+		err := rows.Scan(&r.username, &r.discordID, &v)
 		if err != nil {
-			return false
+			return r, false
 		}
 	}
-	return err == nil && v != nil
+	r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	return r, err == nil && r != nil
 }
-func (l *Linker) LinkedFromGamerTag(gamertag string) bool {
-	var v interface{}
+func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool) {
+	var v string
+	r := &MySQLResponse{}
 	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE username='%s';", gamertag))
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&v, &v)
+		err := rows.Scan(&r.username, &r.discordID, &v)
 		if err != nil {
-			return false
+			return r, false
 		}
 	}
-	return err == nil && v != nil
+	r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	return r, err == nil && r != nil
 }
 
 func (l *Linker) Link(username, code, discordID string) (err error) {
@@ -63,7 +74,8 @@ func (l *Linker) Link(username, code, discordID string) (err error) {
 }
 
 func link(username, discordID string, db *sql.DB) error {
-	insert, err := db.Query("INSERT INTO link VALUES (?, ?);", username, discordID)
+	unLink(username, db)
+	insert, err := db.Query("INSERT INTO link VALUES (?, ?, ?);", username, discordID, time.Now().Format(time.RFC3339))
 	if err != nil {
 		return err
 	}

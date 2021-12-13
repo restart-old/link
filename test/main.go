@@ -22,11 +22,13 @@ func main() {
 	storer := link.NewJSONStorer("./link/")
 	storer.Store("RestartFU", link.NewCode(7))
 	linker := link.NewLinker(db, storer)
-	fmt.Println(linker.LinkedFromGamerTag("RestartFU"))
 	if code, ok := storer.LoadByUser("RestartFU"); ok {
 		if err := linker.Link("RestartFU", code.Code, "12412413453"); err != nil {
 			fmt.Println(err)
 		}
 	}
-	fmt.Println(linker.LinkedFromGamerTag("RestartFU"))
+	r, ok := linker.LinkedFromGamerTag("RestartFU")
+	if ok {
+		fmt.Println(r.LinkedSince().Date())
+	}
 }
