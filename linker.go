@@ -36,10 +36,10 @@ func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool) {
 	var v string
 	r := &MySQLResponse{}
 	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE discord_id='%s';", discordID))
-	defer rows.Close()
 	if err != nil {
 		return r, false
 	}
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&r.username, &r.discordID, &v)
 		if err != nil {
@@ -53,10 +53,10 @@ func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool) {
 	var v string
 	r := &MySQLResponse{}
 	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE username='%s';", gamertag))
-	defer rows.Close()
 	if err != nil {
 		return r, false
 	}
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&r.username, &r.discordID, &v)
 		if err != nil {
