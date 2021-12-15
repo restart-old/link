@@ -72,7 +72,7 @@ func (s JSONStorer) store(username string, code Code) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(s.codepath(), dataBuf, 727)
+	return os.WriteFile(s.codepath(), dataBuf, 0777)
 }
 
 // loadbycode...
