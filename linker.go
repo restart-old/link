@@ -110,7 +110,7 @@ func (l *Linker) Link(username, code, discordID string) (err error) {
 
 func link(username, discordID, xuid string, db *sql.DB) error {
 	unLink(username, db)
-	insert, err := db.Query("INSERT INTO link VALUES (?, ?, ?, ?);", username, discordID, xuid, time.Now().Format(time.RFC3339))
+	insert, err := db.Query("INSERT INTO link VALUES (?, ?, ?, ?);", username, discordID, time.Now().Format(time.RFC3339), xuid)
 	if err != nil {
 		return err
 	}
