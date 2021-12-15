@@ -42,7 +42,7 @@ func randBool() bool {
 	return randIntn(2) == 1
 }
 
-func removeCode(file, username string) error {
+func RemoveCode(file, username string) error {
 	codes, err := collectCodesData(file)
 	if err != nil {
 		return err
