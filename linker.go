@@ -32,49 +32,45 @@ func (l *Linker) Cache() {
 
 }
 
-func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool) {
+func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool, error) {
 	var v string
 	r := &MySQLResponse{}
 	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE discord_id='%s';", discordID))
 	if err != nil {
-		fmt.Println(err)
-		return r, false
+		return r, false, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&r.username, &r.discordID, &v)
 		if err != nil {
-			fmt.Println(err)
-			return r, false
+			return r, false, err
 		}
 	}
 	if r.discordID == "" || r.username == "" {
-		return r, false
+		return r, false, nil
 	}
 	r.linkedSince, _ = time.Parse(time.RFC3339, v)
-	return r, r != nil
+	return r, r != nil, err
 }
-func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool) {
+func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool, error) {
 	var v string
 	r := &MySQLResponse{}
 	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE username='%s';", gamertag))
 	if err != nil {
-		fmt.Println(err)
-		return r, false
+		return r, false, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&r.username, &r.discordID, &v)
 		if err != nil {
-			fmt.Println(err)
-			return r, false
+			return r, false, err
 		}
 	}
 	if r.discordID == "" || r.username == "" {
-		return r, false
+		return r, false, nil
 	}
 	r.linkedSince, _ = time.Parse(time.RFC3339, v)
-	return r, r != nil
+	return r, r != nil, err
 }
 
 func (l *Linker) Link(username, code, discordID string) (err error) {
