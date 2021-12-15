@@ -48,7 +48,10 @@ func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool) {
 			return r, false
 		}
 	}
-	r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	if v != "" {
+		r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	}
+	fmt.Println(r)
 	return r, r != nil
 }
 func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool) {
@@ -67,7 +70,10 @@ func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool) {
 			return r, false
 		}
 	}
-	r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	if v != "" {
+		r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	}
+	fmt.Println(r)
 	return r, r != nil
 }
 
