@@ -43,10 +43,7 @@ func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool, er
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
-		if err != nil {
-			return r, false, err
-		}
+		rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
 	}
 	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
@@ -63,10 +60,7 @@ func (l *Linker) LinkedFromXUID(xuid string) (*MySQLResponse, bool, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
-		if err != nil {
-			return r, false, err
-		}
+		rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
 	}
 	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
@@ -84,10 +78,7 @@ func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool, erro
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
-		if err != nil {
-			return r, false, err
-		}
+		rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
 	}
 	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
