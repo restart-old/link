@@ -15,10 +15,10 @@ type Code struct {
 	Expiration time.Time
 }
 
-func NewCode(length int) Code {
+func NewCode(length int, xuid string) Code {
 	str := "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
 	list := strings.Split(str, "")
-	return Code{Code: newcode(list, length), Expiration: time.Now().Add(15 * time.Minute)}
+	return Code{Code: newcode(list, length), Expiration: time.Now().Add(15 * time.Minute), XUID: xuid}
 }
 func newcode(list []string, length int) (s string) {
 	for i := 0; i != length; i++ {
