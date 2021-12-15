@@ -49,7 +49,7 @@ func RemoveCode(file, username string) error {
 	}
 	delete(codes, username)
 	databuf, _ := json.MarshalIndent(codes, "", "\t")
-	return os.WriteFile(file, databuf, 727)
+	return os.WriteFile(file, databuf, 0777)
 }
 
 func collectCodesData(file string) (v map[string]Code, err error) {
