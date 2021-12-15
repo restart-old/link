@@ -9,11 +9,13 @@ import (
 type MySQLResponse struct {
 	username    string
 	discordID   string
+	xuid        string
 	linkedSince time.Time
 }
 
 func (m *MySQLResponse) Username() string       { return m.username }
 func (m *MySQLResponse) DiscordID() string      { return m.discordID }
+func (m *MySQLResponse) XUID() string           { return m.xuid }
 func (m *MySQLResponse) LinkedSince() time.Time { return m.linkedSince }
 
 type Linker struct {
@@ -41,17 +43,38 @@ func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool, er
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&r.username, &r.discordID, &v)
+		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
 		if err != nil {
 			return r, false, err
 		}
 	}
-	if r.discordID == "" || r.username == "" {
+	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
 	}
 	r.linkedSince, _ = time.Parse(time.RFC3339, v)
 	return r, r != nil, err
 }
+func (l *Linker) LinkedFromXUID(xuid string) (*MySQLResponse, bool, error) {
+	var v string
+	r := &MySQLResponse{}
+	rows, err := l.db.Query(fmt.Sprintf("SELECT * FROM link WHERE xuid='%s';", xuid))
+	if err != nil {
+		return r, false, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		if err != nil {
+			return r, false, err
+		}
+	}
+	if r.discordID == "" || r.username == "" || r.xuid == "" {
+		return r, false, nil
+	}
+	r.linkedSince, _ = time.Parse(time.RFC3339, v)
+	return r, r != nil, err
+}
+
 func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool, error) {
 	var v string
 	r := &MySQLResponse{}
@@ -61,12 +84,12 @@ func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool, erro
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&r.username, &r.discordID, &v)
+		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
 		if err != nil {
 			return r, false, err
 		}
 	}
-	if r.discordID == "" || r.username == "" {
+	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
 	}
 	r.linkedSince, _ = time.Parse(time.RFC3339, v)
