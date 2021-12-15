@@ -11,6 +11,7 @@ import (
 
 type Code struct {
 	Code       string
+	XUID       string
 	Expiration time.Time
 }
 

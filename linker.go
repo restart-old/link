@@ -43,7 +43,10 @@ func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool, er
 	}
 	defer rows.Close()
 	for rows.Next() {
-		rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		if err != nil {
+			return r, false, err
+		}
 	}
 	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
@@ -60,7 +63,10 @@ func (l *Linker) LinkedFromXUID(xuid string) (*MySQLResponse, bool, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		if err != nil {
+			return r, false, err
+		}
 	}
 	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
@@ -78,7 +84,10 @@ func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool, erro
 	}
 	defer rows.Close()
 	for rows.Next() {
-		rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		err := rows.Scan(&r.username, &r.discordID, &v, &r.xuid)
+		if err != nil {
+			return r, false, err
+		}
 	}
 	if r.discordID == "" || r.username == "" || r.xuid == "" {
 		return r, false, nil
@@ -88,10 +97,10 @@ func (l *Linker) LinkedFromGamerTag(gamertag string) (*MySQLResponse, bool, erro
 }
 
 func (l *Linker) Link(username, code, discordID string) (err error) {
-	if c, ok := l.LoadByUser(username); !ok {
+	if c, xuid, ok := l.LoadByUser(username); !ok {
 		return err
 	} else if c.Code == code {
-		err = link(username, discordID, l.db)
+		err = link(username, discordID, xuid, l.db)
 		if err != nil {
 			return err
 		}
@@ -99,9 +108,9 @@ func (l *Linker) Link(username, code, discordID string) (err error) {
 	return
 }
 
-func link(username, discordID string, db *sql.DB) error {
+func link(username, discordID, xuid string, db *sql.DB) error {
 	unLink(username, db)
-	insert, err := db.Query("INSERT INTO link VALUES (?, ?, ?);", username, discordID, time.Now().Format(time.RFC3339))
+	insert, err := db.Query("INSERT INTO link VALUES (?, ?, ?,?);", username, discordID, xuid, time.Now().Format(time.RFC3339))
 	if err != nil {
 		return err
 	}

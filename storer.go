@@ -8,8 +8,8 @@ import (
 
 type Storer interface {
 	Store(username string, Code Code) error
-	LoadByCode(code string) (string, bool)
-	LoadByUser(username string) (Code, bool)
+	LoadByCode(code string) (string, string, bool)
+	LoadByUser(username string) (Code, string, bool)
 }
 
 type JSONStorer struct {
@@ -32,29 +32,29 @@ func (s JSONStorer) Store(username string, code Code) error {
 }
 
 // LoadByCode loads the username that currently has the code provided
-func (s JSONStorer) LoadByCode(code string) (username string, ok bool) {
+func (s JSONStorer) LoadByCode(code string) (username string, xuid string, ok bool) {
 	if code == "" {
-		return username, false
+		return username, "", false
 	}
-	username, ok = loadbycode(code, s.codepath())
+	username, xuid, ok = loadbycode(code, s.codepath())
 	if !ok {
 		RemoveCode(s.codepath(), username)
-		return "", false
+		return "", "", false
 	}
 	return
 }
 
 // LoadByUser loads the code that the user provided currently has
-func (s JSONStorer) LoadByUser(username string) (code Code, ok bool) {
+func (s JSONStorer) LoadByUser(username string) (code Code, xuid string, ok bool) {
 	if username == "" {
-		return code, false
+		return code, "", false
 	}
 	code, ok = loadbyuser(username, s.codepath())
 	if !ok {
 		RemoveCode(s.codepath(), username)
-		return code, false
+		return code, "", false
 	}
-	return code, true
+	return code, code.XUID, true
 }
 
 // codepath returns the path of the codes.json file
@@ -76,18 +76,19 @@ func (s JSONStorer) store(username string, code Code) error {
 }
 
 // loadbycode...
-func loadbycode(code, file string) (username string, ok bool) {
+func loadbycode(code, file string) (username string, xuid string, ok bool) {
 	codes, err := collectCodesData(file)
 	if err != nil {
-		return username, false
+		return username, "", false
 	}
 	for u, c := range codes {
 		if c.Code == code {
 			username = u
-			return username, c.Expiration.After(time.Now())
+			xuid = c.XUID
+			return username, c.XUID, c.Expiration.After(time.Now())
 		}
 	}
-	return username, false
+	return username, xuid, false
 }
 
 //loadbyuser...
