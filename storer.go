@@ -23,9 +23,9 @@ func NewJSONStorer(folder string) *JSONStorer {
 
 // Store stores the code and username provided
 func (s JSONStorer) Store(username string, code Code) error {
-	f, err := os.OpenFile(s.codepath(), os.O_RDWR, 727)
+	f, err := os.OpenFile(s.codepath(), os.O_RDWR, 0777)
 	if os.IsNotExist(err) {
-		os.WriteFile(s.codepath(), []byte("{}"), 727)
+		os.WriteFile(s.codepath(), []byte("{}"), 0777)
 	}
 	defer f.Close()
 	return s.store(username, code)
