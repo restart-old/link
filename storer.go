@@ -12,8 +12,8 @@ type Storer interface {
 	LoadByCode(code string) (string, string, bool)
 	LoadByUser(username string) (Code, string, bool)
 
-	RemoveByCode(code string)
-	RemoveByUser(username string)
+	RemoveByCode(code string) error
+	RemoveByUser(username string) error
 }
 
 type JSONStorer struct {
