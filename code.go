@@ -2,9 +2,7 @@ package link
 
 import (
 	"crypto/rand"
-	"encoding/json"
 	"math/big"
-	"os"
 	"strings"
 	"time"
 )
@@ -41,23 +39,4 @@ func randIntn(n int) int {
 }
 func randBool() bool {
 	return randIntn(2) == 1
-}
-
-func RemoveCode(file, username string) error {
-	codes, err := collectCodesData(file)
-	if err != nil {
-		return err
-	}
-	delete(codes, username)
-	databuf, _ := json.MarshalIndent(codes, "", "\t")
-	return os.WriteFile(file, databuf, 0777)
-}
-
-func collectCodesData(file string) (v map[string]Code, err error) {
-	b, err := os.ReadFile(file)
-	if err != nil {
-		return v, err
-	}
-	json.Unmarshal(b, &v)
-	return v, err
 }

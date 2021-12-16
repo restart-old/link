@@ -29,11 +29,6 @@ func NewLinker(db *sql.DB, s Storer) *Linker {
 		Storer: s,
 	}
 }
-
-func (l *Linker) Cache() {
-
-}
-
 func (l *Linker) LinkedFromDiscordID(discordID string) (*MySQLResponse, bool, error) {
 	var v string
 	r := &MySQLResponse{}
@@ -104,6 +99,7 @@ func (l *Linker) Link(username, code, discordID string) (err error) {
 		if err != nil {
 			return err
 		}
+		l.RemoveByUser(username)
 	}
 	return
 }

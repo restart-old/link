@@ -8,8 +8,12 @@ import (
 
 type Storer interface {
 	Store(username string, Code Code) error
+
 	LoadByCode(code string) (string, string, bool)
 	LoadByUser(username string) (Code, string, bool)
+
+	RemoveByCode(code string)
+	RemoveByUser(username string)
 }
 
 type JSONStorer struct {
@@ -38,7 +42,7 @@ func (s JSONStorer) LoadByCode(code string) (username string, xuid string, ok bo
 	}
 	username, xuid, ok = loadbycode(code, s.codepath())
 	if !ok {
-		RemoveCode(s.codepath(), username)
+		s.RemoveByUser(username)
 		return "", "", false
 	}
 	return
@@ -51,10 +55,34 @@ func (s JSONStorer) LoadByUser(username string) (code Code, xuid string, ok bool
 	}
 	code, ok = loadbyuser(username, s.codepath())
 	if !ok {
-		RemoveCode(s.codepath(), username)
+		s.RemoveByUser(username)
 		return code, "", false
 	}
 	return code, code.XUID, true
+}
+
+func (s JSONStorer) RemoveByCode(code string) error {
+	codes, err := collectCodesData(s.codepath())
+	if err != nil {
+		return err
+	}
+	for username, c := range codes {
+		if c.Code == code {
+			delete(codes, username)
+		}
+	}
+	databuf, _ := json.MarshalIndent(codes, "", "\t")
+	return os.WriteFile(s.codepath(), databuf, 0777)
+}
+
+func (s JSONStorer) RemoveByUser(username string) error {
+	codes, err := collectCodesData(s.codepath())
+	if err != nil {
+		return err
+	}
+	delete(codes, username)
+	databuf, _ := json.MarshalIndent(codes, "", "\t")
+	return os.WriteFile(s.codepath(), databuf, 0777)
 }
 
 // codepath returns the path of the codes.json file
@@ -99,4 +127,13 @@ func loadbyuser(username, file string) (code Code, ok bool) {
 	}
 	code, ok = codes[username]
 	return code, ok && code.Expiration.After(time.Now())
+}
+
+func collectCodesData(file string) (v map[string]Code, err error) {
+	b, err := os.ReadFile(file)
+	if err != nil {
+		return v, err
+	}
+	json.Unmarshal(b, &v)
+	return v, err
 }
